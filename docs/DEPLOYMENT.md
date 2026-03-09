@@ -13,8 +13,8 @@
 3. **Realtime**: Migration `005` enables Realtime for `signals`. If it fails, enable manually: Database → Replication → `signals`
 4. **Auth**:
    - Authentication → URL Configuration:
-     - Site URL: `https://your-app.vercel.app`
-     - Redirect URLs: `https://your-app.vercel.app/auth/callback`
+     - Site URL: `https://your-app.vercel.app` (must match production; localhost breaks email confirm links)
+     - Redirect URLs: add `https://your-app.vercel.app/**` and `https://your-app.vercel.app/auth/callback`
    - Enable Email provider (or add Google/GitHub OAuth)
 
 ## 2. Vercel Deployment
@@ -29,7 +29,7 @@
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key |
 | `COINGECKO_API_KEY` | CoinGecko API key |
 | `CRON_SECRET` | Random string for cron auth |
-| `NEXT_PUBLIC_APP_URL` | Your app URL (e.g. https://traderush.vercel.app) |
+| `NEXT_PUBLIC_APP_URL` | **Required** for auth email confirmation redirects. Use your production URL (e.g. https://traderush.vercel.app) |
 
 3. **Cron**: Vercel runs `/api/cron/daily-sync` daily at 00:00 UTC. Add `CRON_SECRET` to Vercel env – cron requests include `Authorization: Bearer CRON_SECRET`.
 

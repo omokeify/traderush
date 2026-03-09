@@ -90,12 +90,12 @@ export default function Home() {
 
   return (
     <>
-      <header className="flex justify-between items-end mb-8">
+      <header className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-6 md:mb-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
             Market <span className="text-brand-orange">Pulse</span>
           </h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <p className="text-gray-400 text-xs sm:text-sm mt-1">
             Real-time momentum analysis for 1,000+ assets
             {selectedCategories.length > 0 && (
               <span className="ml-2 text-brand-orange">
@@ -104,9 +104,9 @@ export default function Home() {
             )}
           </p>
         </div>
-        <div className="flex space-x-4">
-          <div className="glass-panel px-4 py-2 rounded-lg flex flex-col items-end border-l-4 border-l-green-500">
-            <div className="flex items-center gap-3 w-full justify-end">
+        <div className="flex flex-wrap gap-2 sm:gap-4">
+          <div className="glass-panel px-3 sm:px-4 py-2 rounded-lg flex flex-col items-end border-l-4 border-l-green-500 min-w-0 flex-1 sm:flex-initial">
+            <div className="flex items-center gap-2 sm:gap-3 w-full justify-end flex-wrap">
               <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
                 Monitor Status
               </span>
@@ -140,11 +140,11 @@ export default function Home() {
                 Seen
               </span>
             </div>
-            <span className="text-sm font-mono text-green-400">
+            <span className="text-xs sm:text-sm font-mono text-green-400 truncate">
               {positions.length} Positions • {signals.length} Signals • {coins.length} Coins
             </span>
           </div>
-          <div className="glass-panel px-4 py-2 rounded-lg flex flex-col items-end border-l-4 border-l-brand-orange">
+          <div className="glass-panel px-3 sm:px-4 py-2 rounded-lg flex flex-col items-end border-l-4 border-l-brand-orange flex-shrink-0">
             <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
               Auto Sync
             </span>
@@ -155,8 +155,8 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="mb-8">
-        <div className="glass-panel rounded-2xl p-6 relative overflow-hidden h-[340px] flex flex-col">
+      <section className="mb-6 md:mb-8">
+        <div className="glass-panel rounded-xl sm:rounded-2xl p-4 sm:p-6 relative overflow-hidden min-h-[280px] h-[280px] sm:h-[340px] flex flex-col">
           <div className="card-scanline-horizontal" />
           <div className="card-scanline-vertical" />
           <div className="flex justify-between items-start z-10">
@@ -165,7 +165,7 @@ export default function Home() {
                 <span className="px-2 py-0.5 bg-brand-orange/20 border border-brand-orange/40 text-brand-orange text-xs rounded font-bold">
                   {featuredSignal ? "FEATURED SIGNAL" : "MARKET LEADER"}
                 </span>
-                <h2 className="text-2xl font-bold">
+                <h2 className="text-lg sm:text-2xl font-bold truncate">
                   {featuredSignal
                     ? `${featuredSignal.coin_id.toUpperCase()}/USDT`
                     : featuredCoin
@@ -173,7 +173,7 @@ export default function Home() {
                     : "—"}
                 </h2>
               </div>
-              <p className="text-4xl font-mono mt-2">
+              <p className="text-2xl sm:text-3xl md:text-4xl font-mono mt-2 break-all">
                 {featuredSignal ? (
                   <>
                     ${Number(featuredSignal.entry_price).toLocaleString(undefined, {
@@ -211,8 +211,8 @@ export default function Home() {
 
       <div className="grid grid-cols-12 gap-8">
         <section className="col-span-8 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold flex items-center">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <h3 className="text-base sm:text-lg font-bold flex items-center">
               <span className="w-2 h-2 bg-brand-orange rounded-full mr-2 animate-pulse" />
               Live Momentum Signals
             </h3>
@@ -251,7 +251,7 @@ export default function Home() {
                         />
                       ))}
                     </div>
-                    <span className="text-xs font-mono text-gray-500">
+                    <span className="text-xs font-mono text-gray-500 break-words">
                       Active Channels: <span className="text-brand-orange">Telegram</span> + <span className="text-brand-orange">CoinGecko</span>
                     </span>
                   </div>
@@ -272,13 +272,13 @@ export default function Home() {
                     tabIndex={0}
                     onClick={() => setPopupCoin(c)}
                     onKeyDown={(e) => e.key === "Enter" && setPopupCoin(c)}
-                    className="glass-panel p-4 rounded-xl flex justify-between items-center cursor-pointer hover:bg-white/5 transition-colors border border-white/5"
+                    className="glass-panel p-3 sm:p-4 rounded-xl flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 cursor-pointer hover:bg-white/5 transition-colors border border-white/5"
                   >
-                    <div>
+                    <div className="min-w-0">
                       <span className="font-semibold">{c.symbol.toUpperCase()}</span>
                       <span className="text-gray-500 text-sm ml-2">#{c.market_cap_rank}</span>
                     </div>
-                    <span className="font-mono text-brand-orange">
+                    <span className="font-mono text-brand-orange text-sm sm:text-base truncate">
                       ${c.current_price != null
                         ? Number(c.current_price).toLocaleString(undefined, { maximumFractionDigits: 6 })
                         : "—"}
@@ -289,7 +289,7 @@ export default function Home() {
                   View all coins →
                 </Link>
                 <div className="border-t border-white/5 pt-4 mt-4">
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                     <div className="flex gap-1">
                       {["d1", "d2", "d3", "d4", "d5"].map((d) => (
                         <span
@@ -298,7 +298,7 @@ export default function Home() {
                         />
                       ))}
                     </div>
-                    <span className="text-xs font-mono text-gray-500">
+                    <span className="text-xs font-mono text-gray-500 break-words">
                       Active Channels: <span className="text-brand-orange">Telegram</span> + <span className="text-brand-orange">CoinGecko</span>
                     </span>
                   </div>
@@ -313,7 +313,7 @@ export default function Home() {
                   Run Manual Scan to load coins. Signals need the worker (Telegram + price validation).
                 </p>
                 <div className="border-t border-white/5 pt-4">
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                     <div className="flex gap-1">
                       {["d1", "d2", "d3", "d4", "d5"].map((d) => (
                         <span
@@ -322,7 +322,7 @@ export default function Home() {
                         />
                       ))}
                     </div>
-                    <span className="text-xs font-mono text-gray-500">
+                    <span className="text-xs font-mono text-gray-500 break-words">
                       Active Channels: <span className="text-brand-orange">Telegram</span> + <span className="text-brand-orange">CoinGecko</span>
                     </span>
                   </div>
@@ -335,7 +335,7 @@ export default function Home() {
           </div>
         </section>
 
-        <aside className="col-span-4 space-y-6">
+        <aside className="lg:col-span-4 space-y-6">
           <MonitoringCategoryCard coinsCount={coins.length} />
 
           <div className="glass-panel rounded-2xl p-5">

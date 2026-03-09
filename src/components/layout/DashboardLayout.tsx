@@ -5,6 +5,22 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
+function MenuIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  );
+}
+
+function XIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  );
+}
+
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" },
   { href: "/coins", label: "Coins", icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
@@ -71,6 +87,12 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
+
   const [userProfile, setUserProfile] = useState<{
     displayName: string | null;
     email: string | null;
@@ -103,7 +125,38 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen overflow-hidden liquid-bg">
-      <aside className="w-64 flex-shrink-0 border-r border-brand-border bg-black/40 backdrop-blur-md z-20 flex flex-col">
+      <button
+        type="button"
+        onClick={() => setSidebarOpen(true)}
+        className="lg:hidden fixed top-4 left-4 z-30 p-2 rounded-lg bg-black/60 border border-white/10 text-white hover:bg-white/10"
+        aria-label="Open menu"
+      >
+        <MenuIcon className="w-6 h-6" />
+      </button>
+
+      {sidebarOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/60 z-40"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      <aside
+        className={`fixed lg:static inset-y-0 left-0 w-64 flex-shrink-0 border-r border-brand-border bg-black/95 backdrop-blur-md z-50 flex flex-col transform transition-transform duration-200 ease-out ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        }`}
+      >
+        <div className="lg:hidden absolute top-4 right-4">
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(false)}
+            className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10"
+            aria-label="Close menu"
+          >
+            <XIcon className="w-5 h-5" />
+          </button>
+        </div>
         <div className="p-6 flex items-center space-x-3">
           <div className="w-8 h-8 bg-brand-orange rounded-sm flex items-center justify-center relative">
             <div className="w-4 h-0.5 bg-black rotate-45 translate-y-[-2px] absolute" />
@@ -171,7 +224,7 @@ export default function DashboardLayout({
           </div>
         </div>
       </aside>
-      <main className="flex-1 overflow-y-auto z-10 p-8 scrollbar-hide">
+      <main className="flex-1 overflow-x-hidden overflow-y-auto z-10 p-4 sm:p-6 lg:p-8 scrollbar-hide pt-14 lg:pt-8">
         {children}
       </main>
     </div>
