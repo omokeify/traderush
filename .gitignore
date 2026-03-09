@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Build
+.next/
+out/
+build/
+dist/
+
+# Env
+.env
+.env.local
+supabase/api.md
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Telethon session
+*.session
+*.session-journal
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
