@@ -24,10 +24,11 @@ export default function SignupPage() {
         ? (process.env.NEXT_PUBLIC_APP_URL || window.location.origin)
         : process.env.NEXT_PUBLIC_APP_URL;
       const redirectTo = appUrl ? `${appUrl.replace(/\/$/, "")}/auth/callback` : undefined;
-      const { error } = await supabase.auth.signUp(
-        { email, password },
-        { emailRedirectTo: redirectTo }
-      );
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        ...(redirectTo && { options: { emailRedirectTo: redirectTo } }),
+      });
       if (error) throw error;
       setMessage("Check your email to confirm your account.");
       router.refresh();
