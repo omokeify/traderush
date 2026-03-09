@@ -32,8 +32,8 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 liquid-bg">
-      <div className="w-full max-w-md glass-panel rounded-2xl p-8 border border-white/10">
+    <div className="min-h-screen flex items-center justify-center p-4 liquid-bg relative">
+      <div className="w-full max-w-md glass-panel rounded-2xl p-8 border border-white/10 relative z-20 pointer-events-auto">
         <div className="text-center mb-8">
           <Link href="/" className="text-2xl font-bold tracking-tight">
             Trade<span className="text-brand-orange">Rush</span>
@@ -77,7 +77,7 @@ function LoginForm() {
 
         <p className="text-center text-sm text-gray-500 mt-6">
           Don&apos;t have an account?{" "}
-          <Link href="/signup" className="text-brand-orange hover:underline">
+          <Link href="/signup" className="text-brand-orange hover:underline cursor-pointer">
             Sign up
           </Link>
         </p>

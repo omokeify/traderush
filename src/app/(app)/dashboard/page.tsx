@@ -5,6 +5,7 @@ import Link from "next/link";
 import MomentumChart from "@/components/dashboard/MomentumChart";
 import SignalCard from "@/components/dashboard/SignalCard";
 import SignalCardPopup from "@/components/signals/SignalCardPopup";
+import CoinCardPopup from "@/components/coins/CoinCardPopup";
 import MonitoringCategoryCard from "@/components/dashboard/MonitoringCategoryCard";
 
 interface Signal {
@@ -23,6 +24,7 @@ interface Coin {
   name: string;
   market_cap_rank: number | null;
   current_price: number | null;
+  telegram_channel?: string | null;
 }
 
 interface Config {
@@ -37,9 +39,16 @@ export default function Home() {
   const [config, setConfig] = useState<Config>({});
   const [loading, setLoading] = useState(true);
   const [popupSignalId, setPopupSignalId] = useState<string | null>(null);
+  const [popupCoin, setPopupCoin] = useState<Coin | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [workerScouting, setWorkerScouting] = useState<boolean | null>(null);
 
   function loadData() {
+    fetch("/api/worker-status")
+      .then((r) => r.json())
+      .then((d) => setWorkerScouting(d.scouting === true))
+      .catch(() => setWorkerScouting(false));
+
     Promise.all([
       fetch("/api/preferences").then((r) => r.json()),
       fetch("/api/config").then((r) => r.json()),
@@ -71,6 +80,8 @@ export default function Home() {
 
   useEffect(() => {
     loadData();
+    const interval = setInterval(loadData, 30_000);
+    return () => clearInterval(interval);
   }, []);
 
   const featuredSignal = signals[0];
@@ -95,9 +106,40 @@ export default function Home() {
         </div>
         <div className="flex space-x-4">
           <div className="glass-panel px-4 py-2 rounded-lg flex flex-col items-end border-l-4 border-l-green-500">
-            <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
-              Monitor Status
-            </span>
+            <div className="flex items-center gap-3 w-full justify-end">
+              <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
+                Monitor Status
+              </span>
+              <span
+                className={`flex items-center gap-1.5 text-[10px] font-medium ${
+                  workerScouting ? "text-yellow-400" : "text-gray-500"
+                }`}
+              >
+                <span className="relative flex h-2 w-2">
+                  {workerScouting ? (
+                    <>
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-500" />
+                    </>
+                  ) : (
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-gray-600" />
+                  )}
+                </span>
+                Scouting
+              </span>
+              <span
+                className={`flex items-center gap-1.5 text-[10px] font-medium ${
+                  coins.length > 0 ? "text-green-400" : "text-gray-500"
+                }`}
+              >
+                <span
+                  className={`relative inline-flex rounded-full h-2 w-2 ${
+                    coins.length > 0 ? "bg-green-500" : "bg-gray-600"
+                  }`}
+                />
+                Seen
+              </span>
+            </div>
             <span className="text-sm font-mono text-green-400">
               {positions.length} Positions • {signals.length} Signals • {coins.length} Coins
             </span>
@@ -115,6 +157,8 @@ export default function Home() {
 
       <section className="mb-8">
         <div className="glass-panel rounded-2xl p-6 relative overflow-hidden h-[340px] flex flex-col">
+          <div className="card-scanline-horizontal" />
+          <div className="card-scanline-vertical" />
           <div className="flex justify-between items-start z-10">
             <div>
               <div className="flex items-center space-x-2">
@@ -224,7 +268,11 @@ export default function Home() {
                 {coins.slice(0, 5).map((c) => (
                   <div
                     key={c.id}
-                    className="glass-panel p-4 rounded-xl flex justify-between items-center"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setPopupCoin(c)}
+                    onKeyDown={(e) => e.key === "Enter" && setPopupCoin(c)}
+                    className="glass-panel p-4 rounded-xl flex justify-between items-center cursor-pointer hover:bg-white/5 transition-colors border border-white/5"
                   >
                     <div>
                       <span className="font-semibold">{c.symbol.toUpperCase()}</span>
@@ -288,7 +336,7 @@ export default function Home() {
         </section>
 
         <aside className="col-span-4 space-y-6">
-          <MonitoringCategoryCard />
+          <MonitoringCategoryCard coinsCount={coins.length} />
 
           <div className="glass-panel rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
@@ -348,6 +396,17 @@ export default function Home() {
         <SignalCardPopup
           signalId={popupSignalId}
           onClose={() => setPopupSignalId(null)}
+        />
+      )}
+      {popupCoin && (
+        <CoinCardPopup
+          coinId={popupCoin.id}
+          symbol={popupCoin.symbol}
+          name={popupCoin.name}
+          currentPrice={popupCoin.current_price}
+          marketCapRank={popupCoin.market_cap_rank}
+          telegramChannel={popupCoin.telegram_channel}
+          onClose={() => setPopupCoin(null)}
         />
       )}
     </>

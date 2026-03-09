@@ -6,7 +6,7 @@ from typing import Optional
 from coingecko_client import CoinGeckoClient
 from supabase_client import SupabaseClient
 from signal_engine import SignalEngine
-from telegram_notifier import TelegramNotifier
+from user_notifier import UserNotifier
 
 
 class AnnouncementValidator:
@@ -18,7 +18,7 @@ class AnnouncementValidator:
         coingecko: CoinGeckoClient,
         signal_engine: SignalEngine,
         window_hours: int = 24,
-        notifier: Optional[TelegramNotifier] = None,
+        notifier: Optional[UserNotifier] = None,
     ):
         self._supabase = supabase
         self._coingecko = coingecko
@@ -54,7 +54,7 @@ class AnnouncementValidator:
             )
             if signal:
                 keywords = ann.get("keywords_matched") or []
-                self._supabase.insert_signal(
+                signal_id = self._supabase.insert_signal(
                     coin_id=coin_id,
                     announcement_id=ann.get("id"),
                     signal_type=signal["signal_type"],
@@ -65,13 +65,18 @@ class AnnouncementValidator:
                 self._supabase.mark_announcement_signal_generated(ann["id"])
 
                 if self._notifier:
-                    await self._notifier.notify_signal(
+                    users = self._supabase.get_users_to_notify(coin_id)
+                    delivered = await self._notifier.notify_users(
+                        users=users,
                         coin_id=coin_id,
                         signal_type=signal["signal_type"],
                         entry_price=signal["entry_price"],
                         price_change=signal["price_change_percent"],
                         keywords=keywords,
+                        signal_id=signal_id,
                     )
+                    if delivered > 0:
+                        print(f"  Notified {delivered} user(s) for {coin_id}")
                 count += 1
 
         return count

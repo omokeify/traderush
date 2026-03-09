@@ -75,9 +75,9 @@ class SupabaseClient:
         except Exception:
             return None  # Duplicate or other error, skip
 
-    def insert_signal(self, coin_id: str, announcement_id: str | None, signal_type: str, entry_price: float, price_change: float, metadata: dict | None = None) -> None:
-        """Insert a generated signal."""
-        self._client.table("signals").insert({
+    def insert_signal(self, coin_id: str, announcement_id: str | None, signal_type: str, entry_price: float, price_change: float, metadata: dict | None = None) -> str | None:
+        """Insert a generated signal. Returns signal id if inserted."""
+        result = self._client.table("signals").insert({
             "coin_id": coin_id,
             "announcement_id": announcement_id,
             "signal_type": signal_type,
@@ -86,6 +86,37 @@ class SupabaseClient:
             "valid_signal": True,
             "metadata": metadata or {},
         }).execute()
+        if result.data and len(result.data) > 0:
+            return result.data[0].get("id")
+        return None
+
+    def get_coin_category(self, coin_id: str) -> str | None:
+        """Get category_id for a coin."""
+        result = self._client.table("coins").select("category_id").eq("id", coin_id).single().execute()
+        if result.data:
+            return result.data.get("category_id")
+        return None
+
+    def get_users_to_notify(self, coin_id: str) -> list[dict]:
+        """Get users who should receive this signal (category match + notification prefs)."""
+        coin_cat = self.get_coin_category(coin_id)
+        result = (
+            self._client.table("user_preferences")
+            .select("user_id, notify_telegram, notify_email, notify_webhook, telegram_chat_id, email, webhook_url, selected_categories")
+            .or_("notify_telegram.eq.true,notify_email.eq.true,notify_webhook.eq.true")
+            .execute()
+        )
+        rows = result.data or []
+        out: list[dict] = []
+        for r in rows:
+            cats = r.get("selected_categories") or []
+            if cats and coin_cat and coin_cat not in cats:
+                continue
+            if (r.get("notify_telegram") and r.get("telegram_chat_id")) or \
+               (r.get("notify_email") and r.get("email")) or \
+               (r.get("notify_webhook") and r.get("webhook_url")):
+                out.append(r)
+        return out
 
     def get_announcements_for_validation(self, since: str) -> list[dict]:
         """Get announcements not yet validated, from within the monitoring window."""
@@ -111,3 +142,12 @@ class SupabaseClient:
         if result.data and len(result.data) > 0:
             return result.data[0].get("value")
         return None
+
+    def upsert_heartbeat(self) -> None:
+        """Update worker heartbeat for dashboard 'Scouting' status."""
+        from datetime import datetime, timezone
+        now = datetime.now(timezone.utc).isoformat()
+        self._client.table("worker_status").upsert(
+            {"id": "monitor", "last_heartbeat_at": now, "updated_at": now},
+            on_conflict="id",
+        ).execute()

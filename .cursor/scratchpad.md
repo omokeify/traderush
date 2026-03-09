@@ -26,8 +26,8 @@ Build an automated trading intelligence system that:
 
 ## Project Status Board
 
-- **Current**: Dashboard design planned
-- **Next**: Implement dashboard enhancements (see below)
+- **Current**: Per-user notifications, profiles, RLS implemented
+- **Next**: Deploy and test end-to-end
 
 ---
 

@@ -16,3 +16,6 @@ apscheduler>=3.10.0
 
 # Config
 python-dotenv>=1.0.0
+
+# Email (optional)
+resend>=2.0.0

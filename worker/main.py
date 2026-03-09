@@ -14,7 +14,7 @@ from config import Config, get_session_path
 from coingecko_client import CoinGeckoClient
 from supabase_client import SupabaseClient
 from telegram_monitor import TelegramMonitor
-from telegram_notifier import TelegramNotifier
+from user_notifier import UserNotifier
 from signal_engine import SignalEngine
 from data_refresh import DataRefreshService
 from announcement_validator import AnnouncementValidator
@@ -85,7 +85,13 @@ async def run_worker() -> None:
     supabase = SupabaseClient(cfg.supabase_url, cfg.supabase_key)
     coingecko = CoinGeckoClient(api_key=cfg.coingecko_api_key)
     signal_engine = SignalEngine(threshold_percent=cfg.momentum_threshold)
-    notifier = TelegramNotifier(cfg.telegram_bot_token, cfg.telegram_notify_chat_id)
+    notifier = UserNotifier(
+        telegram_bot_token=cfg.telegram_bot_token,
+        resend_api_key=cfg.resend_api_key,
+        from_email=cfg.from_email,
+        app_url=cfg.app_url,
+        global_telegram_chat_id=cfg.telegram_notify_chat_id,
+    )
     validator = AnnouncementValidator(
         supabase, coingecko, signal_engine, cfg.monitoring_window_hours, notifier
     )
@@ -99,9 +105,18 @@ async def run_worker() -> None:
     async def validation_job() -> None:
         await run_validation_job(validator)
 
+    # Heartbeat for dashboard "Scouting" status
+    def heartbeat_job() -> None:
+        try:
+            supabase.upsert_heartbeat()
+        except Exception:
+            pass
+
     scheduler = AsyncIOScheduler()
     scheduler.add_job(validation_job, "interval", minutes=10)
+    scheduler.add_job(heartbeat_job, "interval", seconds=30)
     scheduler.start()
+    heartbeat_job()  # Immediate heartbeat so dashboard shows Scouting
     print("Validation scheduler started (every 10 min)")
 
     # Build channel -> coin map (coins with telegram_channel set)
@@ -131,6 +146,8 @@ async def run_worker() -> None:
         cfg.telegram_api_hash,
         get_session_path(),
         announcement_handler,
+        phone=cfg.telegram_phone,
+        code=cfg.telegram_code,
     )
 
     for c in coins:
@@ -142,11 +159,12 @@ async def run_worker() -> None:
             else:
                 monitor.register_channel(f"@{ref}" if not ref.startswith("@") else ref, c["id"])
 
-    if not monitor._channel_to_coin:
-        print("No valid Telegram channels mapped. Add telegram_channel (numeric ID) to coins.")
+    if not monitor._pending:
+        print("No valid Telegram channels mapped. Add telegram_channel to coins (run Sync Telegram).")
         return
 
     print("Starting Telegram monitor...")
+    supabase.upsert_heartbeat()  # Initial heartbeat
     await monitor.start()
 
 

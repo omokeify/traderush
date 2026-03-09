@@ -150,8 +150,19 @@ export default function PreferencesPage() {
                     onChange={(e) => setPrefs((p) => ({ ...p, notify_telegram: e.target.checked }))}
                     className="rounded"
                   />
-                  <span>Telegram Bot (set TELEGRAM_BOT_TOKEN + TELEGRAM_NOTIFY_CHAT_ID in worker .env)</span>
+                  <span>Telegram (per-user)</span>
                 </label>
+                <input
+                  type="text"
+                  placeholder="Your Telegram Chat ID (e.g. 123456789)"
+                  value={prefs.telegram_chat_id}
+                  onChange={(e) => setPrefs((p) => ({ ...p, telegram_chat_id: e.target.value }))}
+                  className="w-full px-4 py-2 bg-black/40 border border-white/10 rounded-lg text-white"
+                />
+                <p className="text-xs text-gray-500">
+                  Message your bot first, then get your chat ID from{" "}
+                  <a href="https://t.me/userinfobot" target="_blank" rel="noreferrer" className="text-brand-orange hover:underline">@userinfobot</a>
+                </p>
                 <label className="flex items-center gap-3">
                   <input
                     type="checkbox"

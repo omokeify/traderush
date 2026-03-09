@@ -13,9 +13,19 @@ from keywords import matches_keywords
 class TelegramMonitor:
     """Monitors Telegram channels for announcement keywords."""
 
-    def __init__(self, api_id: int, api_hash: str, session_path: Path, on_announcement: Callable[..., Awaitable[None]]):
+    def __init__(
+        self,
+        api_id: int,
+        api_hash: str,
+        session_path: Path,
+        on_announcement: Callable[..., Awaitable[None]],
+        phone: str | None = None,
+        code: str | None = None,
+    ):
         self._client = TelegramClient(str(session_path), api_id, api_hash)
         self._on_announcement = on_announcement
+        self._phone = phone
+        self._code = code
         self._channel_to_coin: dict[int, str] = {}
         self._pending: list[tuple[str, str]] = []  # (username_or_id, coin_id)
 
@@ -25,7 +35,8 @@ class TelegramMonitor:
 
     async def start(self) -> None:
         """Start the client, resolve usernames to IDs, register handlers."""
-        await self._client.start()
+        code_cb = (lambda: self._code) if self._code else None
+        await self._client.start(phone=self._phone, code_callback=code_cb)
         for ref, coin_id in self._pending:
             try:
                 entity = await self._client.get_entity(ref)

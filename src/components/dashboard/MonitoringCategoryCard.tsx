@@ -27,7 +27,12 @@ function formatTimeAgo(iso: string): string {
   return `${Math.floor(sec / 86400)}d ago`;
 }
 
-export default function MonitoringCategoryCard() {
+interface MonitoringCategoryCardProps {
+  /** Coins count from dashboard - used for "Coins monitored" display */
+  coinsCount?: number;
+}
+
+export default function MonitoringCategoryCard({ coinsCount }: MonitoringCategoryCardProps) {
   const [status, setStatus] = useState<MonitoringStatus | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +58,8 @@ export default function MonitoringCategoryCard() {
           .filter(Boolean)
       : ["All categories"];
 
-  const isMonitoring = status.coins_monitored > 0;
+  const displayedCoins = coinsCount ?? status.coins_monitored;
+  const isMonitoring = displayedCoins > 0;
   const hasActivity = status.last_announcement_at || status.last_signal_at;
 
   return (
@@ -87,7 +93,7 @@ export default function MonitoringCategoryCard() {
         <div className="flex justify-between items-center text-sm">
           <span className="text-gray-500">Coins monitored</span>
           <span className="font-mono font-bold text-brand-orange">
-            {status.coins_monitored}
+            {displayedCoins}
           </span>
         </div>
 

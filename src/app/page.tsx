@@ -57,16 +57,22 @@ export default function LandingPage() {
           <Menu className="w-6 h-6" />
         </button>
 
-        <Link
-          href="/dashboard"
-          className="hidden md:flex items-center gap-2 px-5 py-2 rounded-full border border-neutral-700 bg-neutral-900/50 hover:bg-neutral-800 hover:border-brand-orange/50 transition-all duration-300 group backdrop-blur-sm"
-        >
-          <Wallet className="w-3 h-3 text-brand-orange" />
-          <span className="text-xs uppercase tracking-widest font-medium text-white">
-            Launch Dashboard
-          </span>
-          <ChevronRight className="w-3 h-3 text-neutral-500 group-hover:text-brand-orange transition-colors" />
-        </Link>
+        <div className="hidden md:flex items-center gap-3">
+          <Link
+            href="/signup"
+            className="text-xs text-brand-orange/90 font-mono tracking-widest border border-brand-orange/30 bg-brand-orange/10 px-3 py-1 rounded-sm hover:bg-brand-orange hover:text-black transition-all duration-300"
+          >
+            Sign up
+          </Link>
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2 px-3 py-1 rounded-sm border border-brand-orange/30 bg-brand-orange/10 text-xs text-brand-orange/90 font-mono tracking-widest hover:bg-brand-orange hover:text-black transition-all duration-300 group backdrop-blur-sm"
+          >
+            <Wallet className="w-3 h-3 text-brand-orange group-hover:text-black transition-colors" />
+            <span>Launch Dashboard</span>
+            <ChevronRight className="w-3 h-3 text-neutral-500 group-hover:text-black transition-colors" />
+          </Link>
+        </div>
       </nav>
 
       <main className="min-h-screen flex flex-col w-full z-10 pt-28 pb-8 relative justify-between">
@@ -380,7 +386,7 @@ export default function LandingPage() {
               <div className="text-[10px] text-neutral-500 uppercase font-mono mb-1">
                 Stack
               </div>
-              <div className="text-lg text-brand-orange font-mono">Supabase + Vercel</div>
+              <div className="text-lg text-brand-orange font-mono">WhatsApp</div>
             </div>
           </div>
         </div>
@@ -498,6 +504,12 @@ export default function LandingPage() {
 
           <div className="border-t border-neutral-900 pt-8 flex flex-col md:flex-row justify-between items-center text-[10px] text-neutral-600 font-mono gap-4 uppercase tracking-widest">
             <div className="flex gap-6">
+              <Link href="/signup" className="hover:text-brand-orange transition-colors">
+                Sign up
+              </Link>
+              <Link href="/login" className="hover:text-brand-orange transition-colors">
+                Sign in
+              </Link>
               <Link href="/dashboard" className="hover:text-brand-orange transition-colors">
                 Dashboard
               </Link>

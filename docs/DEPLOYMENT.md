@@ -9,9 +9,8 @@
 ## 1. Supabase Setup
 
 1. Create a project at [supabase.com](https://supabase.com)
-2. Run migrations in order: `001`, `002`, `003`, `004`
-3. **Enable Realtime** for `signals` table:
-   - Database → Replication → Enable for `signals`
+2. Run migrations in order: `001`, `002`, `003`, `004`, `005`
+3. **Realtime**: Migration `005` enables Realtime for `signals`. If it fails, enable manually: Database → Replication → `signals`
 4. **Auth**:
    - Authentication → URL Configuration:
      - Site URL: `https://your-app.vercel.app`
@@ -49,10 +48,14 @@ The worker must run 24/7 to monitor Telegram.
 | `TELEGRAM_API_ID` | From [my.telegram.org](https://my.telegram.org) |
 | `TELEGRAM_API_HASH` | From my.telegram.org |
 | `COINGECKO_API_KEY` | CoinGecko API key |
-| `TELEGRAM_BOT_TOKEN` | (Optional) For sending notifications |
-| `TELEGRAM_NOTIFY_CHAT_ID` | (Optional) Chat ID for notifications |
+| `TELEGRAM_BOT_TOKEN` | Required for per-user Telegram notifications |
+| `TELEGRAM_NOTIFY_CHAT_ID` | (Optional) Global broadcast chat – all signals also sent here |
+| `RESEND_API_KEY` | (Optional) For email notifications – from [resend.com](https://resend.com) |
+| `FROM_EMAIL` | (Optional) Sender email for Resend (e.g. `signals@yourdomain.com`) |
+| `APP_URL` | (Optional) App URL for "View details" links in emails (e.g. `https://traderush.vercel.app`) |
 
 4. On first run, the worker will prompt for Telegram phone number (one-time).
+5. **Per-user notifications**: Users set `telegram_chat_id`, `email`, or `webhook_url` in Preferences. To get a Telegram chat ID: message your bot, then use [@userinfobot](https://t.me/userinfobot) or similar.
 
 ## 4. Initial Data Bootstrap
 
