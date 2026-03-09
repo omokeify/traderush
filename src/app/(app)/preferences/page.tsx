@@ -83,7 +83,7 @@ export default function PreferencesPage() {
             <section>
               <h3 className="text-lg font-bold mb-4">Categories to Monitor</h3>
               <p className="text-sm text-gray-500 mb-4">
-                Select project categories (AI, RWA, etc.). Manual Scan can filter by category.
+                Select project categories (AI, RWA, etc.). Coins and Telegram sync automatically.
               </p>
               <div className="flex flex-wrap gap-2">
                 {categories.slice(0, 20).map((c) => (

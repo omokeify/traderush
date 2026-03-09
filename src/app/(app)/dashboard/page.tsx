@@ -35,7 +35,6 @@ export default function Home() {
   const [positions, setPositions] = useState<Signal[]>([]);
   const [coins, setCoins] = useState<Coin[]>([]);
   const [config, setConfig] = useState<Config>({});
-  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [loading, setLoading] = useState(true);
   const [popupSignalId, setPopupSignalId] = useState<string | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -78,30 +77,6 @@ export default function Home() {
   const featuredCoin = coins[0];
   const displaySignals = signals.slice(0, 5);
 
-  async function handleRefresh() {
-    const body =
-      selectedCategories.length > 0
-        ? JSON.stringify({ category: selectedCategories[0] })
-        : undefined;
-    const res = await fetch("/api/manual/scan", {
-      method: "POST",
-      headers: body ? { "Content-Type": "application/json" } : undefined,
-      body,
-    });
-    const data = await res.json();
-    if (data.ok) {
-      setLastRefresh(new Date());
-      const categoriesParam =
-        selectedCategories.length > 0
-          ? `&categories=${encodeURIComponent(selectedCategories.join(","))}`
-          : "";
-      fetch(`/api/coins?limit=10${categoriesParam}`)
-        .then((r) => r.json())
-        .then((co) => setCoins(Array.isArray(co) ? co : []));
-    }
-    alert(data.ok ? `Updated ${data.coins_updated} coins` : data.error || "Failed");
-  }
-
   return (
     <>
       <header className="flex justify-between items-end mb-8">
@@ -129,10 +104,10 @@ export default function Home() {
           </div>
           <div className="glass-panel px-4 py-2 rounded-lg flex flex-col items-end border-l-4 border-l-brand-orange">
             <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
-              Last Refresh
+              Auto Sync
             </span>
             <span className="text-sm font-mono text-brand-orange">
-              {lastRefresh ? "Just now" : "—"}
+              Daily
             </span>
           </div>
         </div>
@@ -322,12 +297,9 @@ export default function Home() {
               </h3>
             </div>
             <div className="space-y-3">
-              <button
-                onClick={handleRefresh}
-                className="w-full px-4 py-3 bg-brand-orange/20 border border-brand-orange/40 text-brand-orange rounded-lg font-semibold hover:bg-brand-orange/30 transition-colors"
-              >
-                Refresh Coins (CoinGecko)
-              </button>
+              <p className="text-xs text-gray-500 px-2">
+                Coins and Telegram sync run automatically. Set categories in Preferences.
+              </p>
               <button
                 onClick={async () => {
                   const res = await fetch("/api/demo/generate-signals", { method: "POST" });
@@ -341,12 +313,6 @@ export default function Home() {
               >
                 Generate Demo Signals
               </button>
-              <Link
-                href="/manual-scan"
-                className="block w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-center hover:bg-white/10 transition-colors text-sm"
-              >
-                Manual Scan →
-              </Link>
             </div>
           </div>
 

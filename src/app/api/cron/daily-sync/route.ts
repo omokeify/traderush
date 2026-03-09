@@ -43,7 +43,7 @@ export async function GET(request: Request) {
     totalCoins = result.count;
   }
 
-  const origin = process.env.NEXT_PUBLIC_APP_URL ?? request.nextUrl.origin;
+  const origin = process.env.NEXT_PUBLIC_APP_URL ?? new URL(request.url).origin;
   const syncRes = await fetch(`${origin}/api/sync-telegram`, {
     method: "POST",
     headers: {

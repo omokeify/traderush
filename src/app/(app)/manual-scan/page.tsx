@@ -27,19 +27,6 @@ export default function ManualScanPage() {
       const data = await res.json();
       setResult(data);
 
-      // When scan uses a category, add it to preferences so dashboard shows those coins
-      if (data.ok && selectedCategory) {
-        const prefsRes = await fetch("/api/preferences");
-        const prefs = await prefsRes.json();
-        const current = (prefs?.selected_categories ?? []) as string[];
-        if (!current.includes(selectedCategory)) {
-          await fetch("/api/preferences", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ...prefs, selected_categories: [...current, selectedCategory] }),
-          });
-        }
-      }
     } catch (e) {
       setResult({ ok: false, error: String(e) });
     } finally {
