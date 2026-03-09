@@ -1,13 +1,29 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({ request });
+const PROTECTED_PATHS = [
+  "/dashboard",
+  "/signals",
+  "/positions",
+  "/coins",
+  "/announcements",
+  "/preferences",
+  "/config",
+  "/manual-scan",
+  "/profile",
+];
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+export async function updateSession(request: NextRequest) {
+  try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !key) {
+      return NextResponse.next({ request });
+    }
+
+    let response = NextResponse.next({ request });
+
+    const supabase = createServerClient(url, key, {
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -18,31 +34,24 @@ export async function updateSession(request: NextRequest) {
           );
         },
       },
-    }
-  );
+    });
 
-  const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
 
-  const isProtected = [
-    "/dashboard",
-    "/signals",
-    "/positions",
-    "/coins",
-    "/announcements",
-    "/preferences",
-    "/config",
-    "/manual-scan",
-  ].some((p) => {
     const pathname = request.nextUrl.pathname;
-    return pathname === p || pathname.startsWith(`${p}/`);
-  });
+    const isProtected = PROTECTED_PATHS.some(
+      (p) => pathname === p || pathname.startsWith(`${p}/`)
+    );
 
-  if (isProtected && !user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    url.searchParams.set("redirect", request.nextUrl.pathname);
-    return Response.redirect(url);
+    if (isProtected && !user) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = "/login";
+      redirectUrl.searchParams.set("redirect", pathname);
+      return Response.redirect(redirectUrl);
+    }
+
+    return response;
+  } catch {
+    return NextResponse.next({ request });
   }
-
-  return response;
 }
