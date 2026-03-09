@@ -81,7 +81,7 @@ export default function DashboardLayout({
     const supabase = createClient();
     Promise.all([
       supabase.auth.getUser(),
-      fetch("/api/profile").then((r) => (r.ok ? r.json() : {})),
+      fetch("/api/profile").then((r) => (r.ok ? r.json() : {})) as Promise<{ display_name?: string; avatar_url?: string }>,
     ]).then(([userRes, profileData]) => {
       const user = userRes.data.user;
       const displayName = profileData?.display_name ?? null;
